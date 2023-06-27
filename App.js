@@ -111,6 +111,17 @@ export default function App() {
           }}
           component={Ingredient}
         />
+        <Stack.Screen
+          name="Lista"
+          options={{
+            headerStyle: {
+              backgroundColor: "#AA3700",
+              height: 100,
+            },
+            headerTintColor: "#fff",
+          }}
+          component={RecipeSearch}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

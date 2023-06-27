@@ -7,19 +7,16 @@ import {
   Image,
   Pressable,
 } from "react-native";
-import { storeData, getData } from "../../utils/storage";
+import { storeData, getJSONData } from "../../utils/storage";
 
 export default function Collection({ navigation }) {
-  const [recipe, setRecipe] = useState(null);
+  const [recipes, setRecipes] = useState(null);
 
   async function getSavedRecipes() {
-    console.log("called");
-    const recipeRAW = await getData("recipe");
-    if (!recipeRAW) return;
+    const recipes = await getJSONData("favorites");
+    if (!recipes) return;
 
-    const recipeParsed = JSON.parse(recipeRAW);
-
-    setRecipe(recipeParsed);
+    setRecipes(recipes);
   }
 
   useEffect(() => {
@@ -34,30 +31,15 @@ export default function Collection({ navigation }) {
             <Text style={styles.title}>Favoritas</Text>
           </View>
           <View style={styles.box7}>
-            <View style={styles.box6}>
-              <Image
-                style={styles.img3}
-                source={require("./pao-de-queijo.jpg")}></Image>
-              <Text style={styles.box6Text}>Pão de queijo</Text>
-            </View>
-            <View style={styles.box6}>
-              <Image
-                style={styles.img3}
-                source={require("./empada.jpg")}></Image>
-              <Text style={styles.box6Text}>Empada</Text>
-            </View>
-            <View style={styles.box6}>
-              <Image
-                style={styles.img3}
-                source={require("./pastel-de-carne.jpg")}></Image>
-              <Text style={styles.box6Text}>Pastel de carne</Text>
-            </View>
-            <View style={styles.box6}>
-              <Image
-                style={styles.img3}
-                source={require("./torta-de-frango.jpg")}></Image>
-              <Text style={styles.box6Text}>Torta de frango</Text>
-            </View>
+            {recipes ? recipes.map(rec => (
+              <Pressable style={styles.box6} onPress={() => {}}>
+                <Image
+                  style={styles.img3}
+                  source={{uri:rec.strMealThumb}}></Image>
+                <Text style={styles.box6Text}>{rec.strMeal}</Text>
+              </Pressable>
+            )) : <></>}
+            
           </View>
         </View>
       </View>
@@ -85,7 +67,7 @@ const styles = StyleSheet.create({
     color: "#AA3700",
   },
   img3: {
-    maxHeight: 90,
+    height: 90,
     maxWidth: 185,
   },
   box6: {

@@ -11,14 +11,14 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
-import { storeJSONData } from "../../utils/storage";
+import { storeJSONData, storeData } from "../../utils/storage";
 
 import { getCategories, getMeal } from "../../services/meals";
-import RecipeSearch from "../RecipeSearch";
 
 const Home = ({ navigation }) => {
   const [categories, setCategories] = useState([]);
   const [recommended, setRecommended] = useState([]);
+  let searchQuery
 
   const default_recipes = [52960, 52831, 53010, 52931, 52795];
 
@@ -44,6 +44,18 @@ const Home = ({ navigation }) => {
     navigation.navigate("Receita");
   }
 
+  async function goToList(category) {
+    await storeData("listType", "category");
+    await storeData("category", category);
+    navigation.navigate("Lista")
+  }
+
+  async function goToListSearch() {
+    await storeData("listType", "search");
+    await storeData("keyword", searchQuery);
+    navigation.navigate("Lista")
+  }
+
   useEffect(() => {
     setCats();
     getRecomended();
@@ -59,8 +71,11 @@ const Home = ({ navigation }) => {
               <TextInput
                 placeholderTextColor={"#380D00"}
                 style={styles.inputText}
+                onChangeText={n => searchQuery = n}
                 placeholder="Procurar receita ou categoria"></TextInput>
-              <Feather name="search" size={18} color="black" />
+              <Pressable onPress={() => goToListSearch()}>
+                <Feather name="search" size={18} color="black" />
+              </Pressable>
             </View>
           </View>
           {recommended[2] ? (
@@ -91,7 +106,7 @@ const Home = ({ navigation }) => {
                 {categories.length != 0 ? (
                   categories?.map((cat) => (
                     <Pressable
-                      onPress={() => navigation.navigate(RecipeSearch)}
+                      onPress={() => goToList(cat.name)}
                       style={styles.box5}
                       key={`cat-${cat.id}`}>
                       <Image

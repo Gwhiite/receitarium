@@ -5,13 +5,13 @@ const mealsAPI = axios.create({
 })
 
 const searchMeal = async (query) => {
-  mealsAPI.get(`/search.php`, {
+  return mealsAPI.get(`/search.php`, {
     params: {
       s: query,
     }
   })
     .then(response => {
-      return response.data
+      return response.data.meals
     })
     .catch(error => {
       throw error
@@ -54,8 +54,23 @@ const getMeal = async (mealID) => {
     })
 }
 
+const categoryItems = async (categoryName) => {
+  return mealsAPI.get(`/filter.php`, {
+    params: {
+      c: categoryName,
+    }
+  })
+    .then(response => {
+      return response.data.meals
+    })
+    .catch(error => {
+      throw error
+    })
+}
+
 export {
   searchMeal,
   getCategories,
-  getMeal
+  getMeal,
+  categoryItems
 }

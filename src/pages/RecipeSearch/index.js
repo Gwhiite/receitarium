@@ -7,8 +7,38 @@ import {
   Image,
   Pressable,
 } from "react-native";
+import { getData, storeJSONData } from "../../utils/storage";
+import { categoryItems, getMeal, searchMeal } from "../../services/meals";
 
 export default function RecipeSearch({ navigation }) {
+  const [meals, setMeals] = useState(null)
+
+  async function buildList() {
+    let type = await getData("listType")
+
+    if (type === 'search') {
+      let query = await getData("keyword")
+
+      const fetchedMeals = await searchMeal(query)
+      setMeals(fetchedMeals)
+    } else {
+      let query = await getData("category")
+
+      const fetchedMeals = await categoryItems(query.replace(/"/g, ""))
+      setMeals(fetchedMeals)
+    }
+  }
+
+  async function goToRecipe(recipe) {
+    const meal = await getMeal(recipe);
+    await storeJSONData("currentRecipe", meal);
+    navigation.navigate("Receita");
+  }
+
+  useEffect(() => {
+    buildList()
+  }, [meals])
+
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -17,30 +47,15 @@ export default function RecipeSearch({ navigation }) {
             <Text style={styles.title}>Receitas</Text>
           </View>
           <View style={styles.box7}>
-            <View style={styles.box6}>
+            { meals ? meals.map(meal => (
+              <Pressable style={styles.box6} onPress={() => goToRecipe(meal.idMeal)}>
               <Image
                 style={styles.img3}
-                source={require("./pao-de-queijo.jpg")}></Image>
-              <Text style={styles.box6Text}>Pão de queijo</Text>
-            </View>
-            <View style={styles.box6}>
-              <Image
-                style={styles.img3}
-                source={require("./empada.jpg")}></Image>
-              <Text style={styles.box6Text}>Empada</Text>
-            </View>
-            <View style={styles.box6}>
-              <Image
-                style={styles.img3}
-                source={require("./pastel-de-carne.jpg")}></Image>
-              <Text style={styles.box6Text}>Pastel de carne</Text>
-            </View>
-            <View style={styles.box6}>
-              <Image
-                style={styles.img3}
-                source={require("./torta-de-frango.jpg")}></Image>
-              <Text style={styles.box6Text}>Torta de frango</Text>
-            </View>
+                source={{uri:meal.strMealThumb}}></Image>
+              <Text style={styles.box6Text}>{meal.strMeal}</Text>
+            </Pressable>
+            )) : <></>}
+            
           </View>
         </View>
       </View>
@@ -68,7 +83,7 @@ const styles = StyleSheet.create({
     color: "#AA3700",
   },
   img3: {
-    maxHeight: 90,
+    height: 90,
     maxWidth: 185,
   },
   box6: {

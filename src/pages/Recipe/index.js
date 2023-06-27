@@ -9,15 +9,23 @@ import {
   Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Feather, Entypo } from "@expo/vector-icons";
-import { getJSONData } from "../../utils/storage";
+import { Feather, Entypo, AntDesign } from "@expo/vector-icons";
+import { getJSONData, appendData } from "../../utils/storage";
 
 export default function Recipe({ navigation }) {
   const [recipe, setRecipe] = useState(null);
+  const [likedIcon, setLikedIcon] = useState("hearto")
 
   const loadRecipe = async () => {
-    const loadedRecipe = await getJSONData("currentRecipe");
-    const l = parseRecipe(loadedRecipe);
+    const fav = await getJSONData("favorites")
+    const favIDs = fav.map(f => f.idMeal)
+    const loadedRecipe = await getJSONData("currentRecipe")
+    const l = parseRecipe(loadedRecipe)
+
+    if (favIDs.includes(loadedRecipe.idMeal)) {
+      setLikedIcon("heart")
+    }
+    
     setRecipe(l);
   };
 
@@ -53,6 +61,12 @@ export default function Recipe({ navigation }) {
     }
   }
 
+  async function saveCurrent() {
+    if (likedIcon === "heart") return
+    setLikedIcon("heart")
+    await appendData("favorites", await getJSONData("currentRecipe"))
+  }
+
   useEffect(() => {
     loadRecipe();
   }, []);
@@ -67,7 +81,9 @@ export default function Recipe({ navigation }) {
               <Text style={styles.title}>{recipe.name}</Text>
               <Text style={styles.subTitle}>{recipe.category}</Text>
             </View>
-            <Feather name="heart" size={24} color="black" />
+            <Pressable onPress={() => saveCurrent()}>
+              <AntDesign name={likedIcon} size={24} color="black" />
+            </Pressable>
           </View>
           <View style={styles.box2}>
             <View style={styles.box3}>
@@ -95,7 +111,7 @@ export default function Recipe({ navigation }) {
             </Pressable> */}
               {recipe?.ingredients ? (
                 recipe?.ingredients.map((ing) => (
-                  <Text style={styles.input}>{`${ing.qtd} ${ing.ing}`}</Text>
+                  <Text style={styles.input} key={ing.qtd}>{`${ing.qtd} ${ing.ing}`}</Text>
                 ))
               ) : (
                 <></>

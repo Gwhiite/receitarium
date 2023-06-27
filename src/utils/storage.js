@@ -45,9 +45,27 @@ const storeJSONData = (key, value) => {
   })
 }
 
+const appendData = (key, value) => {
+  return new Promise(async (rs, rj) => {
+    try {
+      let c = await getJSONData(key)
+      if (!c) {
+        c = []
+      }
+
+      c.push(value)
+      c = new Set(c)
+      await storeJSONData(key, [...c])
+    } catch (e) {
+      rj(e)
+    }
+  })
+}
+
 export {
   storeData,
   getData,
   getJSONData,
-  storeJSONData
+  storeJSONData,
+  appendData
 }

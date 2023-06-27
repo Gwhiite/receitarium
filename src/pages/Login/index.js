@@ -28,7 +28,6 @@ export default function Login({ navigation }) {
     }
 
     let user = JSON.parse(userRAW)
-    console.log(user, password, email)
     if (user.pass == password) {
       navigation.navigate("Rota")
     } else {
