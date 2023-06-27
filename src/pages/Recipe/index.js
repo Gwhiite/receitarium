@@ -18,7 +18,10 @@ export default function Recipe({ navigation }) {
 
   const loadRecipe = async () => {
     const fav = await getJSONData("favorites")
-    const favIDs = fav.map(f => f.idMeal)
+    let favIDs = []
+    if (fav) {
+      favIDs = fav.map(f => f.idMeal)
+    }
     const loadedRecipe = await getJSONData("currentRecipe")
     const l = parseRecipe(loadedRecipe)
 
